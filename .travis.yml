@@ -5,6 +5,8 @@ branches:
   only:
     - master
 before_install:
- curl -s get.gvmtool.net >> gvm.sh | sudo chmod 777 gvm.sh | sudo sh ./gvm.sh | gvm install grails 1.3.9
+- sudo add-apt-repository -y ppa:groovy-dev/grails
+- sudo apt-get update
+- sudo apt-get install grails-1.3.9
 script:
   grails test-app
