@@ -1,4 +1,4 @@
-grails.presenters.packages = ['es.osoco.grails.plugins.presenter']
+grails.presenters.packages = ['es.osoco.grails.plugins.presenter.test']
 
 log4j = {
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
