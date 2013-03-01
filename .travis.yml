@@ -5,4 +5,6 @@ branches:
   only:
     - master
 before_install:
-  curl -s get.gvmtool.net | bash | gvm install grails 1.3.9
+  curl -s get.gvmtool.net >> gvm.sh | chmod 755 gvm.sh | ./gvm.sh | gvm install grails 1.3.9
+script:
+  grails test-app
