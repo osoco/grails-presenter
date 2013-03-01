@@ -6,25 +6,24 @@ import org.springframework.context.ApplicationContext
 import org.springframework.core.type.filter.AnnotationTypeFilter
 
 class PresenterGrailsPlugin {
-    // the plugin version
-    def version = "0.1"
-    // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.3.9 > *"
-    // the other plugins this plugin depends on
-    def dependsOn = [:]
-    // resources that are excluded from plugin packaging
-    def pluginExcludes = [
-            "grails-app/views/error.gsp"
+    def version = '0.1'
+    def grailsVersion = '1.3.7 > *'
+    def title = 'Presenter pattern implementation for Grails'
+    def organization = [name: 'OSOCO', url: 'http://osoco.es/']
+    def author = 'OSOCO'
+    def authorEmail = 'info@osoco.es'
+    def developers = [
+        [name: 'Arturo García', email: 'arturo.garcia@osoco.es'],
+        [name: 'Marcin Gryszko', email: 'marcin.gryszko@osoco.es'],
     ]
 
-    // TODO Fill in these fields
-    def author = "Your name"
-    def authorEmail = ""
-    def title = "Plugin summary/headline"
-    def description = 'Brief description of the plugin'
-
-    // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/presenter"
+    def pluginExcludes = [
+        'grails-app/domain/**/*',
+        'grails-app/services/**/*',
+        'src/groovy/es/osoco/grails/plugins/presenter/test/**/*'
+    ]
+    def description = '''Presenters decorate domain objects, adapting their interface to what a view requires.\n
+They are able to expose domain object properties, transform them and generate HTML markup.'''
 
     def typeFilters = [new AnnotationTypeFilter(Presenter)]
 
