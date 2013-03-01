@@ -1,3 +1,4 @@
+import es.osoco.grails.plugins.presenter.ClassNameAsBeanNameGenerator
 import es.osoco.grails.plugins.presenter.Presenter
 import es.osoco.grails.plugins.presenter.ScopeAlwaysAsPrototypeResolver
 import org.codehaus.groovy.grails.beans.factory.GenericBeanFactoryAccessor
@@ -34,7 +35,8 @@ They are able to expose domain object properties, transform them and generate HT
         if (packagesToScan) {
             grailsContext.'component-scan'(
                 'base-package': packagesToScan.join(','),
-                'scope-resolver': ScopeAlwaysAsPrototypeResolver.name
+                'scope-resolver': ScopeAlwaysAsPrototypeResolver.name,
+                'name-generator': ClassNameAsBeanNameGenerator.name
             )
         }
     }
@@ -47,15 +49,15 @@ They are able to expose domain object properties, transform them and generate HT
 
         def accessor = new GenericBeanFactoryAccessor(ctx)
         accessor.getBeansWithAnnotation(Presenter).each { name, presenter ->
-            enhancePresenter presenter.class, name, ctx
+            enhancePresenter presenter.class, ctx
         }
     }
 
-    private static enhancePresenter(Class clazz, String name, ApplicationContext ctx) {
+    private static enhancePresenter(Class clazz, ApplicationContext ctx) {
         def metaClass = GroovySystem.metaClassRegistry.getMetaClass(clazz)
         metaClass.constructor = { ->
-            if (ctx.containsBean(name)) {
-                ctx.getBean name
+            if (ctx.containsBean(clazz.name)) {
+                ctx.getBean clazz.name
             }
             else {
                 BeanUtils.instantiateClass clazz
