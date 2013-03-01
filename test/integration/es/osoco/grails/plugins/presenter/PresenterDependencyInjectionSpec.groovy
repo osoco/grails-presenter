@@ -1,25 +1,39 @@
 package es.osoco.grails.plugins.presenter
 
-import es.osoco.grails.plugins.presenter.test.Author
-import es.osoco.grails.plugins.presenter.test.AuthorPresenter
+import es.osoco.grails.plugins.presenter.test.autoscan.AnnotatedPresenter
+import es.osoco.grails.plugins.presenter.test.manualconfig.ManuallyConfiguredPresenter
 import grails.plugin.spock.IntegrationSpec
 
 class PresenterDependencyInjectionSpec extends IntegrationSpec {
     def weirdService
 
-    def 'autowires on new'() {
+    def 'dependencies of annotated presenters are injected automatically'() {
         given:
-        def author = new Author()
-        def presenter = new AuthorPresenter()
+        def presenter = new AnnotatedPresenter()
 
         expect:
-        author.weirdService == weirdService
         presenter.weirdService == weirdService
     }
 
-    def 'presenters are prototypes'() {
+    def 'dependencies of manually configured presenters are injected automatically'() {
         given:
-        def (presenter1, presenter2) = [new AuthorPresenter(), new AuthorPresenter()]
+        def presenter = new ManuallyConfiguredPresenter()
+
+        expect:
+        presenter.weirdService == weirdService
+    }
+
+    def 'annotated presenters are not singletons'() {
+        given:
+        def (presenter1, presenter2) = [new AnnotatedPresenter(), new AnnotatedPresenter()]
+
+        expect:
+        !presenter1.is(presenter2)
+    }
+
+    def 'manually configured presenters are not singletons'() {
+        given:
+        def (presenter1, presenter2) = [new ManuallyConfiguredPresenter(), new ManuallyConfiguredPresenter()]
 
         expect:
         !presenter1.is(presenter2)

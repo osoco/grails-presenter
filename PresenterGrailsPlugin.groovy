@@ -3,6 +3,7 @@ import es.osoco.grails.plugins.presenter.Presenter
 import es.osoco.grails.plugins.presenter.ScopeAlwaysAsPrototypeResolver
 import org.codehaus.groovy.grails.beans.factory.GenericBeanFactoryAccessor
 import org.springframework.beans.BeanUtils
+import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.context.ApplicationContext
 import org.springframework.core.type.filter.AnnotationTypeFilter
 
@@ -39,6 +40,13 @@ They are able to expose domain object properties, transform them and generate HT
                 'name-generator': ClassNameAsBeanNameGenerator.name
             )
         }
+        def presenterClasses = application.config.grails.presenters.classes
+        presenterClasses.each { clazz ->
+            "$clazz.name"(clazz)  { bean ->
+                bean.autowire = 'byName'
+                bean.scope = BeanDefinition.SCOPE_PROTOTYPE
+            }
+        }
     }
 
     def doWithDynamicMethods = { ctx ->
@@ -47,9 +55,17 @@ They are able to expose domain object properties, transform them and generate HT
             }
         }
 
+        def classes = []
+        application.config.grails.presenters.classes.each { it ->
+            classes << it
+        }
+
         def accessor = new GenericBeanFactoryAccessor(ctx)
         accessor.getBeansWithAnnotation(Presenter).each { name, presenter ->
-            enhancePresenter presenter.class, ctx
+            classes << presenter.class
+        }
+        classes.each {
+            enhancePresenter it, ctx
         }
     }
 
