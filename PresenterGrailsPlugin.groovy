@@ -30,7 +30,7 @@ They are able to expose domain object properties, transform them and generate HT
     def doWithSpring = {
         xmlns grailsContext:"http://grails.org/schema/context"
 
-        def packagesToScan = [] + application.config.grails.presenters.packages
+        def packagesToScan = application.config.grails.presenters.packages
         if (packagesToScan) {
             grailsContext.'component-scan'(
                 'base-package': packagesToScan.join(','),
