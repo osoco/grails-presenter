@@ -32,17 +32,16 @@ They are able to expose domain object properties, transform them and generate HT
     def doWithSpring = {
         xmlns grailsContext:"http://grails.org/schema/context"
 
-        def packagesToScan = application.config.grails.presenters.packages
-        if (packagesToScan) {
+        def presenterPackages = presenterPackagesFrom(application.config)
+        if (presenterPackages) {
             grailsContext.'component-scan'(
-                'base-package': packagesToScan.join(','),
+                'base-package': presenterPackages.join(','),
                 'scope-resolver': ScopeAlwaysAsPrototypeResolver.name,
                 'name-generator': ClassNameAsBeanNameGenerator.name
             )
         }
-        def presenterClasses = application.config.grails.presenters.classes
-        presenterClasses.each { clazz ->
-            "$clazz.name"(clazz)  { bean ->
+        presenterClassesFrom(application.config).each { presenterClass ->
+            "${beanNameFor(presenterClass)}"(presenterClass)  { bean ->
                 bean.autowire = 'byName'
                 bean.scope = BeanDefinition.SCOPE_PROTOTYPE
             }
@@ -55,29 +54,38 @@ They are able to expose domain object properties, transform them and generate HT
             }
         }
 
-        def classes = []
-        application.config.grails.presenters.classes.each { it ->
-            classes << it
-        }
-
-        def accessor = new GenericBeanFactoryAccessor(ctx)
-        accessor.getBeansWithAnnotation(Presenter).each { name, presenter ->
-            classes << presenter.class
-        }
-        classes.each {
-            enhancePresenter it, ctx
+        allPresenterClasses(application.config, ctx).each { presenterClass ->
+            autowireDependenciesOnCreation presenterClass, ctx
         }
     }
 
-    private static enhancePresenter(Class clazz, ApplicationContext ctx) {
-        def metaClass = GroovySystem.metaClassRegistry.getMetaClass(clazz)
+    private static allPresenterClasses(config, ctx) {
+        def classes = presenterClassesFrom(config).collect { it }
+        def accessor = new GenericBeanFactoryAccessor(ctx)
+        classes += accessor.getBeansWithAnnotation(Presenter)*.value*.class
+    }
+
+    private static presenterPackagesFrom(config) {
+        config.grails.presenters.packages
+    }
+
+    private static presenterClassesFrom(config) {
+        config.grails.presenters.classes
+    }
+
+    private static autowireDependenciesOnCreation(presenterClass, ctx) {
+        def metaClass = GroovySystem.metaClassRegistry.getMetaClass(presenterClass)
         metaClass.constructor = { ->
-            if (ctx.containsBean(clazz.name)) {
-                ctx.getBean clazz.name
+            if (ctx.containsBean(beanNameFor(presenterClass))) {
+                ctx.getBean beanNameFor(presenterClass)
             }
             else {
-                BeanUtils.instantiateClass clazz
+                BeanUtils.instantiateClass presenterClass
             }
         }
+    }
+
+    private static beanNameFor(presenterClass) {
+        presenterClass.name
     }
 }
