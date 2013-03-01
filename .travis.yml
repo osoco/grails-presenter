@@ -5,6 +5,6 @@ branches:
   only:
     - master
 before_install:
-  curl -s get.gvmtool.net >> gvm.sh | chmod 777 gvm.sh | ./gvm.sh | gvm install grails
+ curl -s get.gvmtool.net >> gvm.sh | sudo chmod 777 gvm.sh | sudo sh ./gvm.sh | sudo gvm install grails
 script:
   grails test-app
