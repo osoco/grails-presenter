@@ -38,7 +38,7 @@ class DelegatorSpec extends Specification {
     def 'gets properties from the wrapped object'() {
         given:
         def delegatee = new Delegatee(aProperty: 'value')
-        def delegator = new Delegator(source: delegatee)
+        def delegator = new Delegator(destination: delegatee)
 
         expect:
         delegator.aProperty == 'value'
@@ -48,7 +48,7 @@ class DelegatorSpec extends Specification {
     def 'properties of the wrapped object cannot be set using assignment'() {
         given:
         def delegatee = new Delegatee()
-        def delegator = new Delegator(source: delegatee)
+        def delegator = new Delegator(destination: delegatee)
 
         when:
         delegator.aProperty = 'value'
@@ -60,7 +60,7 @@ class DelegatorSpec extends Specification {
     def 'properties of the wrapped object can be set only by calling directly a setter'() {
         given:
         def delegatee = new Delegatee()
-        def delegator = new Delegator(source: delegatee)
+        def delegator = new Delegator(destination: delegatee)
 
         when:
         delegator.setaProperty 'value'
@@ -72,7 +72,7 @@ class DelegatorSpec extends Specification {
     def "throws MissingPropertyException if the delegatee doesn't have the requested property"() {
         given:
         def delegatee = new Delegatee()
-        def delegator = new Delegator(source: delegatee)
+        def delegator = new Delegator(destination: delegatee)
 
         when:
         delegator.notExistingProperty
@@ -84,7 +84,7 @@ class DelegatorSpec extends Specification {
     def 'calls methods from the wrapped object'() {
         given:
         def delegatee = new Delegatee()
-        def delegator = new Delegator(source: delegatee)
+        def delegator = new Delegator(destination: delegatee)
 
         expect:
         delegator.parameterless() == delegatee.parameterless()
@@ -103,7 +103,7 @@ class DelegatorSpec extends Specification {
     def "throws MissingMethodException if the delegatee doesn't respond to the method"() {
         given:
         def delegatee = new Delegatee()
-        def delegator = new Delegator(source: delegatee)
+        def delegator = new Delegator(destination: delegatee)
 
         when:
         delegator.notExistingMethod()

@@ -1,13 +1,13 @@
 package es.osoco.grails.plugins.presenter
 
 class Delegator {
-    def source
+    def destination
 
     def propertyMissing(String name) {
-        source.getProperty(name)
+        destination.getProperty(name)
     }
 
     def methodMissing(String name, args) {
-        source.invokeMethod(name, args)
+        destination.invokeMethod(name, args)
     }
 }
