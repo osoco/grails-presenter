@@ -1,6 +1,7 @@
 package es.osoco.grails.plugins.presenter
 
 import es.osoco.grails.plugins.presenter.test.Author
+import es.osoco.grails.plugins.presenter.test.AuthorPresenter
 import spock.lang.Specification
 
 class PresenterIntegrationSpec extends Specification{
@@ -11,5 +12,10 @@ class PresenterIntegrationSpec extends Specification{
 
         expect:
         notThrown MissingMethodException
+    }
+
+    def"Check if decorate method return its presenter class"(){
+        given:
+        new Author().decorate() instanceof AuthorPresenter
     }
 }

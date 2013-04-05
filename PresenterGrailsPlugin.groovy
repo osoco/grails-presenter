@@ -2,6 +2,7 @@ import es.osoco.grails.plugins.presenter.ClassNameAsBeanNameGenerator
 import es.osoco.grails.plugins.presenter.Presenter
 import es.osoco.grails.plugins.presenter.ScopeAlwaysAsPrototypeResolver
 import org.codehaus.groovy.grails.beans.factory.GenericBeanFactoryAccessor
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.context.ApplicationContext
@@ -30,7 +31,7 @@ They are able to expose domain object properties, transform them and generate HT
     def typeFilters = [new AnnotationTypeFilter(Presenter)]
 
     def doWithSpring = {
-        xmlns grailsContext:"http://grails.org/schema/context"
+        xmlns grailsContext: "http://grails.org/schema/context"
 
         def presenterPackages = presenterPackagesFrom(application.config)
         if (presenterPackages) {
@@ -49,8 +50,10 @@ They are able to expose domain object properties, transform them and generate HT
     }
 
     def doWithDynamicMethods = { ctx ->
-        for (domainClass in application.domainClasses) {
+        application.domainClasses.each { GrailsDomainClass  domainClass ->
             domainClass.metaClass.decorate = {
+                def presenterClassName = "${domainClass.fullName}Presenter"
+                application.classLoader.loadClass(presenterClassName)
             }
         }
 
