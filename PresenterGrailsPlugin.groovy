@@ -50,10 +50,10 @@ They are able to expose domain object properties, transform them and generate HT
     }
 
     def doWithDynamicMethods = { ctx ->
-        application.domainClasses.each { GrailsDomainClass  domainClass ->
+        application.domainClasses.each { domainClass ->
             domainClass.metaClass.decorate = {
                 def presenterClassName = "${domainClass.fullName}Presenter"
-                application.classLoader.loadClass(presenterClassName)
+                application.classLoader.loadClass(presenterClassName).newInstance()
             }
         }
 
