@@ -27,6 +27,7 @@ class PresenterASTTransformation implements ASTTransformation {
         ClassNode classNode = nodes[1]
         addDestinationFieldTo classNode
         addDelegatingPropertyMissingTo classNode
+        addDelegatingMethodMissingTo classNode
     }
 
     private void checkIfTransformationApplicable(ASTNode[] nodes, SourceUnit source) {
@@ -44,19 +45,50 @@ class PresenterASTTransformation implements ASTTransformation {
     }
 
     private addDelegatingPropertyMissingTo(ClassNode classNode) {
-        def nameParameter = new Parameter(STRING, 'name')
         def methodBody = new BlockStatement([
             new ExpressionStatement(
                 new MethodCallExpression(
                     new VariableExpression('destination'),
                     'getProperty',
-                    new ArgumentListExpression(nameParameter)
+                    new ArgumentListExpression(new VariableExpression('name', STRING))
                 )
             )
         ], NO_VARIABLE_SCOPE)
 
-        classNode.addMethod(new MethodNode(
-            'propertyMissing', classNode.ACC_PUBLIC, OBJECT, [nameParameter] as Parameter[], NO_EXCEPTIONS, methodBody
-        ))
+        classNode.addMethod(
+            new MethodNode(
+                'propertyMissing',
+                classNode.ACC_PUBLIC,
+                OBJECT,
+                [new Parameter(STRING, 'name')] as Parameter[],
+                NO_EXCEPTIONS,
+                methodBody
+            )
+        )
+    }
+
+    private addDelegatingMethodMissingTo(ClassNode classNode) {
+        def methodBody = new BlockStatement([
+            new ExpressionStatement(
+                new MethodCallExpression(
+                    new VariableExpression('destination'),
+                    'invokeMethod',
+                    new ArgumentListExpression(
+                        new VariableExpression('name', STRING), new VariableExpression('args', OBJECT)
+                    )
+                )
+            )
+        ], NO_VARIABLE_SCOPE)
+
+        classNode.addMethod(
+            new MethodNode(
+                'methodMissing',
+                classNode.ACC_PUBLIC,
+                OBJECT,
+                [new Parameter(STRING, 'name'), new Parameter(OBJECT, 'args')] as Parameter[],
+                NO_EXCEPTIONS,
+                methodBody
+            )
+        )
     }
 }
