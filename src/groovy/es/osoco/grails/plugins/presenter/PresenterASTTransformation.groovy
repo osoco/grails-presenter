@@ -2,7 +2,12 @@ package es.osoco.grails.plugins.presenter
 
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.ConstructorCallExpression
+import org.codehaus.groovy.ast.expr.MapEntryExpression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
+import org.codehaus.groovy.ast.expr.NamedArgumentListExpression
+import org.codehaus.groovy.ast.expr.TupleExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
@@ -25,6 +30,7 @@ class PresenterASTTransformation implements ASTTransformation {
         checkIfTransformationApplicable(nodes, source)
 
         ClassNode classNode = nodes[1]
+        addDecorateMethodsTo classNode
         addDestinationFieldTo classNode
         addDelegatingPropertyMissingTo classNode
         addDelegatingMethodMissingTo classNode
@@ -40,7 +46,28 @@ class PresenterASTTransformation implements ASTTransformation {
         }
     }
 
-    private addDestinationFieldTo(classNode) {
+    private addDecorateMethodsTo(ClassNode classNode) {
+        def methodBody = new BlockStatement([
+            new ExpressionStatement(
+                new ConstructorCallExpression(classNode, new TupleExpression(new NamedArgumentListExpression([
+                    new MapEntryExpression(new ConstantExpression('destination'), new VariableExpression('delegatee'))
+                ]))),
+            )
+        ], NO_VARIABLE_SCOPE)
+
+        classNode.addMethod(
+            new MethodNode(
+                'decorate',
+                classNode.ACC_PUBLIC | classNode.ACC_STATIC,
+                OBJECT,
+                [new Parameter(OBJECT, 'delegatee')] as Parameter[],
+                NO_EXCEPTIONS,
+                methodBody
+            )
+        )
+    }
+
+    private addDestinationFieldTo(ClassNode classNode) {
         classNode.addField('destination', classNode.ACC_PUBLIC, OBJECT, null)
     }
 
