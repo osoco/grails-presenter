@@ -1,7 +1,7 @@
-import es.osoco.grails.plugins.presenter.test.manualconfig.ManuallyConfiguredPresenter
+import es.osoco.grails.plugins.presenter.test.manualconfig.AlternativeAuthorPresenter
 
 grails.presenters.packages = ['es.osoco.grails.plugins.presenter.test.autoscan']
-grails.presenters.classes = [ManuallyConfiguredPresenter]
+grails.presenters.classes = [AlternativeAuthorPresenter]
 
 log4j = {
     error 'org.codehaus.groovy.grails',

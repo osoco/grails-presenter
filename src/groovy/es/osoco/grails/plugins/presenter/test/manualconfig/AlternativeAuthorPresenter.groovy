@@ -1,5 +1,5 @@
 package es.osoco.grails.plugins.presenter.test.manualconfig
 
-class ManuallyConfiguredPresenter {
+class AlternativeAuthorPresenter {
     def weirdService
 }

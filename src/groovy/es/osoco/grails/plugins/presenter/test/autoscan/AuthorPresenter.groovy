@@ -4,7 +4,7 @@ import es.osoco.grails.plugins.presenter.Presenter
 import org.springframework.beans.factory.annotation.Autowired
 
 @Presenter
-class AnnotatedPresenter {
+class AuthorPresenter {
     @Autowired
     def weirdService
 }

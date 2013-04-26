@@ -1,12 +1,49 @@
 package es.osoco.grails.plugins.presenter
 
-import es.osoco.grails.plugins.presenter.test.Author
-import es.osoco.grails.plugins.presenter.test.AuthorPresenter
-import spock.lang.Specification
+import es.osoco.grails.plugins.presenter.test.autoscan.Author
+import es.osoco.grails.plugins.presenter.test.autoscan.AuthorPresenter
+import es.osoco.grails.plugins.presenter.test.manualconfig.AlternativeAuthorPresenter
+import grails.plugin.spock.IntegrationSpec
 
-class PresenterIntegrationSpec extends Specification {
-    def "annotated class has a decorate method that returns a presenter"() {
+class PresenterIntegrationSpec extends IntegrationSpec {
+    def weirdService
+
+    def "domain class has a decorate method that returns a presenter"() {
         expect:
-        new Author().decorate().class == AuthorPresenter
+        authorPresenter().class == AuthorPresenter
+    }
+
+    def 'dependencies of annotated presenters are injected automatically'() {
+        expect:
+        authorPresenter().weirdService == weirdService
+    }
+
+    def 'dependencies of manually configured presenters are injected automatically'() {
+        expect:
+        alternativeAuthorPresenter().weirdService == weirdService
+    }
+
+    def 'annotated presenters are not singletons'() {
+        given:
+        def (presenter1, presenter2) = [authorPresenter(), authorPresenter()]
+
+        expect:
+        !presenter1.is(presenter2)
+    }
+
+    def 'manually configured presenters are not singletons'() {
+        given:
+        def (presenter1, presenter2) = [alternativeAuthorPresenter(), alternativeAuthorPresenter()]
+
+        expect:
+        !presenter1.is(presenter2)
+    }
+
+    private authorPresenter() {
+        new Author().decorate()
+    }
+
+    private alternativeAuthorPresenter() {
+        new AlternativeAuthorPresenter()
     }
 }
