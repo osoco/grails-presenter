@@ -2,6 +2,11 @@ package es.osoco.grails.plugins.presenter
 
 import es.osoco.grails.plugins.presenter.test.autoscan.Author
 import es.osoco.grails.plugins.presenter.test.autoscan.AuthorPresenter
+import es.osoco.grails.plugins.presenter.test.autoscan.CreativePresenter
+import es.osoco.grails.plugins.presenter.test.autoscan.Invoice
+import es.osoco.grails.plugins.presenter.test.autoscan.Painter
+import es.osoco.grails.plugins.presenter.test.autoscan.PersonPresenter
+import es.osoco.grails.plugins.presenter.test.autoscan.Runner
 import es.osoco.grails.plugins.presenter.test.manualconfig.AlternativeAuthorPresenter
 import grails.plugin.spock.IntegrationSpec
 
@@ -16,6 +21,20 @@ class PresenterIntegrationSpec extends IntegrationSpec {
     def "custom presenter class can be passed to the decorate method"() {
         expect:
         alternativeAuthorPresenter().class == AlternativeAuthorPresenter
+    }
+
+    def "decorator for the parent class is used if no decorator is found by convention"() {
+        expect:
+        new Painter().decorate().class == CreativePresenter
+        new Runner().decorate().class == PersonPresenter
+    }
+
+    def "exception is thrown if there is no presenter for the class and its parents"() {
+        when:
+        new Invoice().decorate()
+
+        then:
+        thrown ClassNotFoundException
     }
 
     def 'dependencies of annotated presenters are injected automatically'() {
@@ -49,6 +68,6 @@ class PresenterIntegrationSpec extends IntegrationSpec {
     }
 
     private alternativeAuthorPresenter() {
-        new Author().decorate(AlternativeAuthorPresenter)
+        new Author().decorate AlternativeAuthorPresenter
     }
 }

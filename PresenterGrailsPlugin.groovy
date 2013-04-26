@@ -1,6 +1,7 @@
 import es.osoco.grails.plugins.presenter.ClassNameAsBeanNameGenerator
 import es.osoco.grails.plugins.presenter.Presenter
 import es.osoco.grails.plugins.presenter.ScopeAlwaysAsPrototypeResolver
+import org.apache.commons.lang.ClassUtils
 import org.codehaus.groovy.grails.beans.factory.GenericBeanFactoryAccessor
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.springframework.beans.BeanUtils
@@ -52,8 +53,18 @@ They are able to expose domain object properties, transform them and generate HT
     def doWithDynamicMethods = { ctx ->
         application.domainClasses.each { domainClass ->
             domainClass.metaClass.decorate = {
-                def presenterClassName = "${domainClass.fullName}Presenter"
-                application.classLoader.loadClass(presenterClassName).newInstance()
+                def presenter = inheritanceChainFor(domainClass.clazz).findResult { clazz ->
+                    def presenterClassName = "${clazz.name}Presenter"
+                    try {
+                        application.classLoader.loadClass(presenterClassName).newInstance()
+                    } catch (ClassNotFoundException e) {
+                        // ignore it and try next class in the inheritance chain
+                    }
+                }
+                if (!presenter) {
+                    throw new ClassNotFoundException("No presenter found for $domainClass.clazz and its parents")
+                }
+                presenter
             }
             domainClass.metaClass.decorate << { Class presenterClass ->
                 presenterClass.newInstance()
@@ -63,6 +74,11 @@ They are able to expose domain object properties, transform them and generate HT
         allPresenterClasses(application.config, ctx).each { presenterClass ->
             autowireDependenciesOnCreation presenterClass, ctx
         }
+    }
+
+    private static inheritanceChainFor(clazz)
+    {
+        [clazz] + ClassUtils.getAllSuperclasses(clazz) - [Object]
     }
 
     private static allPresenterClasses(config, ctx) {
