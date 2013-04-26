@@ -111,4 +111,15 @@ class DelegatorSpec extends Specification {
         then:
         thrown MissingMethodException
     }
+
+    def 'adds method to metaclass'()
+    {
+        given:
+        def delegatee = new Delegatee()
+        delegatee.metaClass.testMethod = { -> 'test'}
+        def delegator = new Delegator(destination: delegatee)
+
+        expect:
+        delegator.testMethod() == delegatee.testMethod()
+    }
 }
