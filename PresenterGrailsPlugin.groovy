@@ -55,6 +55,9 @@ They are able to expose domain object properties, transform them and generate HT
                 def presenterClassName = "${domainClass.fullName}Presenter"
                 application.classLoader.loadClass(presenterClassName).newInstance()
             }
+            domainClass.metaClass.decorate << { Class presenterClass ->
+                presenterClass.newInstance()
+            }
         }
 
         allPresenterClasses(application.config, ctx).each { presenterClass ->

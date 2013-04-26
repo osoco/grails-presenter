@@ -8,9 +8,14 @@ import grails.plugin.spock.IntegrationSpec
 class PresenterIntegrationSpec extends IntegrationSpec {
     def weirdService
 
-    def "domain class has a decorate method that returns a presenter"() {
+    def "domain class has a decorate method that returns a default presenter"() {
         expect:
         authorPresenter().class == AuthorPresenter
+    }
+
+    def "custom presenter class can be passed to the decorate method"() {
+        expect:
+        alternativeAuthorPresenter().class == AlternativeAuthorPresenter
     }
 
     def 'dependencies of annotated presenters are injected automatically'() {
@@ -44,6 +49,6 @@ class PresenterIntegrationSpec extends IntegrationSpec {
     }
 
     private alternativeAuthorPresenter() {
-        new AlternativeAuthorPresenter()
+        new Author().decorate(AlternativeAuthorPresenter)
     }
 }
